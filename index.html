@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solar savings calculator</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef2f6;color:#1d2733}
+header{background:#12345a;color:#fff;padding:22px 32px}header h1{margin:0;font-size:24px}header p{margin:6px 0 0;opacity:.8;font-size:14px}
+main{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:28px 32px;max-width:1100px;margin:auto}
+.card{background:#fff;border-radius:10px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+label{display:block;font-size:13px;font-weight:bold;margin:14px 0 6px}input{width:100%;padding:10px;border:1px solid #c5ced8;border-radius:6px;font-size:15px}
+.out{display:grid;grid-template-columns:1fr 1fr;gap:12px}.k{background:#f4f7fa;border-radius:8px;padding:14px}.k b{display:block;font-size:22px;color:#12345a;margin-top:4px}.k span{font-size:12px;color:#5a6672}
+.bar{height:14px;background:#dde5ed;border-radius:7px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:#2a8f5b}
+footer{text-align:center;font-size:12px;color:#5a6672;padding:0 0 24px}
+@media(max-width:700px){main{grid-template-columns:1fr}}
+</style></head><body>
+<header><h1>Solar savings calculator</h1><p>Vanilla JavaScript, no libraries. Responsive. All inputs editable, results update instantly.</p></header>
+<main>
+<section class="card"><h2 style="margin:0;font-size:18px">Inputs</h2>
+<label>Monthly electricity bill</label><input id="bill" type="number" value="150">
+<label>Electricity price per kWh</label><input id="price" type="number" step="0.01" value="0.12">
+<label>Average peak sun hours per day</label><input id="sun" type="number" step="0.1" value="4.5">
+<label>Installed cost per kWp</label><input id="cost" type="number" value="700">
+<label>Share of usage covered by solar (%)</label><input id="cover" type="number" value="80">
+</section>
+<section class="card"><h2 style="margin:0 0 14px;font-size:18px">Results</h2>
+<div class="out">
+<div class="k"><span>Suggested system size</span><b id="kwp"></b></div>
+<div class="k"><span>Estimated investment</span><b id="inv"></b></div>
+<div class="k"><span>Yearly savings</span><b id="sav"></b></div>
+<div class="k"><span>Simple payback</span><b id="pay"></b></div>
+</div>
+<p style="font-size:13px;margin:18px 0 0">Bill covered by solar</p><div class="bar"><i id="barv"></i></div>
+<p style="font-size:12px;color:#5a6672;margin-top:16px">Simple estimate: kWh/month = bill / price; kWp = covered kWh / (sun hours x 30 x 0.8 performance ratio). Not a quotation.</p>
+</section>
+</main>
+<footer>Illustrative default values · <a href="https://github.com/Doanh03/solar-tools">Source on GitHub</a></footer>
+<script src="calc.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+function calc(){
+  const r=estimate({bill:+$('bill').value, price:+$('price').value, sunHours:+$('sun').value, costPerKwp:+$('cost').value, coverPct:+$('cover').value});
+  if(!r){['kwp','inv','sav','pay'].forEach(i=>$(i).textContent='-');return}
+  $('kwp').textContent=r.kwp.toFixed(1)+' kWp';$('inv').textContent=Math.round(r.investment).toLocaleString('en-US');
+  $('sav').textContent=Math.round(r.yearlySavings).toLocaleString('en-US');$('pay').textContent=(r.paybackYears!=null?r.paybackYears.toFixed(1):'-')+' years';
+  $('barv').style.width=(r.cover*100)+'%';
+}
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input',calc));calc();
+</script>
+</body></html>
